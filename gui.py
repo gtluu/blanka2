@@ -1,150 +1,190 @@
-from subprocess import call, CREATE_NEW_CONSOLE, PIPE, STDOUT, Popen
-from PyQt4 import QtGui, QtCore
-import datetime
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'blanka_gui.ui'
+#
+# Created by: PyQt4 UI code generator 4.11.4
+#
+# WARNING! All changes made in this file will be lost!
+
 from run_blanka import *
+from subprocess import call, CREATE_NEW_CONSOLE, PIPE, STDOUT, Popen
+from PyQt4 import QtCore, QtGui
+import sys
 
-class BlankaGUI(QtGui.QWidget):
-    def __init__(self, parent=None):
-        super(BlankaGUI, self).__init__(parent)
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName(_fromUtf8("BLANKA GUI"))
+        MainWindow.resize(621, 551)
+        MainWindow.setMinimumSize(QtCore.QSize(621, 551))
+        MainWindow.setMaximumSize(QtCore.QSize(621, 551))
+        self.centralwidget = QtGui.QWidget(MainWindow)
+        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.sample_label = QtGui.QLabel(self.centralwidget)
+        self.sample_label.setGeometry(QtCore.QRect(10, 10, 81, 16))
+        self.sample_label.setObjectName(_fromUtf8("sample_label"))
+        self.sample_text = QtGui.QLineEdit(self.centralwidget)
+        self.sample_text.setGeometry(QtCore.QRect(10, 30, 411, 20))
+        self.sample_text.setObjectName(_fromUtf8("sample_text"))
+        self.sample_file_browser = QtGui.QPushButton(self.centralwidget)
+        self.sample_file_browser.setGeometry(QtCore.QRect(440, 30, 31, 23))
+        self.sample_file_browser.setObjectName(_fromUtf8("sample_file_browser"))
+        self.num_samples = QtGui.QCheckBox(self.centralwidget)
+        self.num_samples.setGeometry(QtCore.QRect(490, 30, 121, 21))
+        self.num_samples.setObjectName(_fromUtf8("num_samples"))
+        self.control_text = QtGui.QLineEdit(self.centralwidget)
+        self.control_text.setGeometry(QtCore.QRect(10, 90, 411, 20))
+        self.control_text.setObjectName(_fromUtf8("control_text"))
+        self.control_label = QtGui.QLabel(self.centralwidget)
+        self.control_label.setGeometry(QtCore.QRect(10, 70, 81, 16))
+        self.control_label.setObjectName(_fromUtf8("control_label"))
+        self.control_file_browser = QtGui.QPushButton(self.centralwidget)
+        self.control_file_browser.setGeometry(QtCore.QRect(440, 90, 31, 23))
+        self.control_file_browser.setObjectName(_fromUtf8("control_file_browser"))
+        self.num_controls = QtGui.QCheckBox(self.centralwidget)
+        self.num_controls.setGeometry(QtCore.QRect(490, 90, 121, 21))
+        self.num_controls.setObjectName(_fromUtf8("num_controls"))
+        self.output_label = QtGui.QLabel(self.centralwidget)
+        self.output_label.setGeometry(QtCore.QRect(10, 130, 141, 16))
+        self.output_label.setObjectName(_fromUtf8("output_label"))
+        self.output_text = QtGui.QLineEdit(self.centralwidget)
+        self.output_text.setGeometry(QtCore.QRect(10, 150, 411, 20))
+        self.output_text.setObjectName(_fromUtf8("output_text"))
+        self.output_file_browser = QtGui.QPushButton(self.centralwidget)
+        self.output_file_browser.setGeometry(QtCore.QRect(440, 150, 31, 23))
+        self.output_file_browser.setObjectName(_fromUtf8("output_file_browser"))
+        self.instrument_label = QtGui.QLabel(self.centralwidget)
+        self.instrument_label.setGeometry(QtCore.QRect(10, 190, 71, 21))
+        self.instrument_label.setObjectName(_fromUtf8("instrument_label"))
+        self.instrument_choice = QtGui.QComboBox(self.centralwidget)
+        self.instrument_choice.setGeometry(QtCore.QRect(90, 190, 161, 22))
+        self.instrument_choice.setObjectName(_fromUtf8("instrument_choice"))
+        self.instrument_choice.addItem(_fromUtf8(""))
+        self.instrument_choice.addItem(_fromUtf8(""))
+        self.instrument_choice.addItem(_fromUtf8(""))
+        self.ms1_threshold_label = QtGui.QLabel(self.centralwidget)
+        self.ms1_threshold_label.setGeometry(QtCore.QRect(10, 230, 251, 21))
+        self.ms1_threshold_label.setObjectName(_fromUtf8("ms1_threshold_label"))
+        self.ms1_threshold_text = QtGui.QLineEdit(self.centralwidget)
+        self.ms1_threshold_text.setGeometry(QtCore.QRect(260, 230, 51, 21))
+        self.ms1_threshold_text.setObjectName(_fromUtf8("ms1_threshold_text"))
+        self.ms2_threshold_text = QtGui.QLineEdit(self.centralwidget)
+        self.ms2_threshold_text.setGeometry(QtCore.QRect(260, 270, 51, 20))
+        self.ms2_threshold_text.setText(_fromUtf8(""))
+        self.ms2_threshold_text.setObjectName(_fromUtf8("ms2_threshold_text"))
+        self.ms2_threshold_label = QtGui.QLabel(self.centralwidget)
+        self.ms2_threshold_label.setGeometry(QtCore.QRect(10, 270, 251, 21))
+        self.ms2_threshold_label.setObjectName(_fromUtf8("ms2_threshold_label"))
+        self.snr_label = QtGui.QLabel(self.centralwidget)
+        self.snr_label.setGeometry(QtCore.QRect(10, 310, 111, 21))
+        self.snr_label.setObjectName(_fromUtf8("snr_label"))
+        self.snr_text = QtGui.QLineEdit(self.centralwidget)
+        self.snr_text.setGeometry(QtCore.QRect(120, 310, 51, 20))
+        self.snr_text.setText(_fromUtf8(""))
+        self.snr_text.setObjectName(_fromUtf8("snr_text"))
+        self.snr_unit = QtGui.QLabel(self.centralwidget)
+        self.snr_unit.setGeometry(QtCore.QRect(180, 310, 21, 21))
+        self.snr_unit.setObjectName(_fromUtf8("snr_unit"))
+        self.rt_label = QtGui.QLabel(self.centralwidget)
+        self.rt_label.setGeometry(QtCore.QRect(10, 350, 151, 21))
+        self.rt_label.setObjectName(_fromUtf8("rt_label"))
+        self.rt_unit = QtGui.QLabel(self.centralwidget)
+        self.rt_unit.setGeometry(QtCore.QRect(230, 350, 21, 21))
+        self.rt_unit.setObjectName(_fromUtf8("rt_unit"))
+        self.rt_text = QtGui.QLineEdit(self.centralwidget)
+        self.rt_text.setGeometry(QtCore.QRect(170, 350, 51, 20))
+        self.rt_text.setText(_fromUtf8(""))
+        self.rt_text.setObjectName(_fromUtf8("rt_text"))
+        self.precursor_mz_label = QtGui.QLabel(self.centralwidget)
+        self.precursor_mz_label.setGeometry(QtCore.QRect(10, 390, 151, 21))
+        self.precursor_mz_label.setObjectName(_fromUtf8("precursor_mz_label"))
+        self.precursor_mz_text = QtGui.QLineEdit(self.centralwidget)
+        self.precursor_mz_text.setGeometry(QtCore.QRect(160, 390, 51, 20))
+        self.precursor_mz_text.setText(_fromUtf8(""))
+        self.precursor_mz_text.setObjectName(_fromUtf8("precursor_mz_text"))
+        self.precursor_mz_unit = QtGui.QLabel(self.centralwidget)
+        self.precursor_mz_unit.setGeometry(QtCore.QRect(220, 390, 21, 21))
+        self.precursor_mz_unit.setObjectName(_fromUtf8("precursor_mz_unit"))
+        self.peak_mz_label = QtGui.QLabel(self.centralwidget)
+        self.peak_mz_label.setGeometry(QtCore.QRect(10, 430, 121, 21))
+        self.peak_mz_label.setObjectName(_fromUtf8("peak_mz_label"))
+        self.peak_mz_unit = QtGui.QLabel(self.centralwidget)
+        self.peak_mz_unit.setGeometry(QtCore.QRect(200, 430, 21, 21))
+        self.peak_mz_unit.setObjectName(_fromUtf8("peak_mz_unit"))
+        self.peak_mz_text = QtGui.QLineEdit(self.centralwidget)
+        self.peak_mz_text.setGeometry(QtCore.QRect(140, 430, 51, 20))
+        self.peak_mz_text.setText(_fromUtf8(""))
+        self.peak_mz_text.setObjectName(_fromUtf8("peak_mz_text"))
+        self.noise_removal_only = QtGui.QCheckBox(self.centralwidget)
+        self.noise_removal_only.setGeometry(QtCore.QRect(370, 310, 121, 21))
+        self.noise_removal_only.setObjectName(_fromUtf8("noise_removal_only"))
+        self.blank_removal_only = QtGui.QCheckBox(self.centralwidget)
+        self.blank_removal_only.setGeometry(QtCore.QRect(370, 350, 121, 21))
+        self.blank_removal_only.setObjectName(_fromUtf8("blank_removal_only"))
+        self.verbose = QtGui.QCheckBox(self.centralwidget)
+        self.verbose.setGeometry(QtCore.QRect(370, 390, 121, 21))
+        self.verbose.setObjectName(_fromUtf8("verbose"))
+        self.advanced_options_label = QtGui.QLabel(self.centralwidget)
+        self.advanced_options_label.setGeometry(QtCore.QRect(10, 470, 91, 16))
+        self.advanced_options_label.setObjectName(_fromUtf8("advanced_options_label"))
+        self.cpu_text = QtGui.QLineEdit(self.centralwidget)
+        self.cpu_text.setGeometry(QtCore.QRect(170, 490, 51, 20))
+        self.cpu_text.setText(_fromUtf8(""))
+        self.cpu_text.setObjectName(_fromUtf8("cpu_text"))
+        self.cpu_label = QtGui.QLabel(self.centralwidget)
+        self.cpu_label.setGeometry(QtCore.QRect(10, 490, 161, 21))
+        self.cpu_label.setObjectName(_fromUtf8("cpu_label"))
+        self.start = QtGui.QPushButton(self.centralwidget)
+        self.start.setGeometry(QtCore.QRect(520, 490, 75, 23))
+        self.start.setObjectName(_fromUtf8("start"))
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtGui.QStatusBar(MainWindow)
+        self.statusbar.setObjectName(_fromUtf8("statusbar"))
+        MainWindow.setStatusBar(self.statusbar)
+
+        MainWindow.setWindowIcon(QtGui.QIcon('blanka.png'))
+
         self.arguments = {}
-        self.sample_label = QtGui.QLabel('Sample', self)
-        self.num_samples = QtGui.QCheckBox('Multiple Sample Files', self)
-        self.sample_text = QtGui.QLineEdit(self)
-        self.sample_file_browser = QtGui.QPushButton('...', self)
-        self.control_label = QtGui.QLabel('Control', self)
-        self.num_controls = QtGui.QCheckBox('Multiple Control Files', self)
-        self.control_text = QtGui.QLineEdit(self)
-        self.control_file_browser = QtGui.QPushButton('...', self)
-        self.output_label = QtGui.QLabel('Output Directory (Optional)', self)
-        self.output_text = QtGui.QLineEdit(self)
-        self.output_file_browser = QtGui.QPushButton('...', self)
-        self.instrument_label = QtGui.QLabel('Experiment', self)
-        self.instrument_choice = QtGui.QComboBox(self)
-        self.threshold_label = QtGui.QLabel('Blank Removal Relative Intensity Threshold (MS1): ', self)
-        self.threshold_text = QtGui.QLineEdit(self)
-        self.threshold_label2 = QtGui.QLabel('Blank Removal Relative Intensity Threshold (MS2): ', self)
-        self.threshold_text2 = QtGui.QLineEdit(self)
-        self.snr_label = QtGui.QLabel('Signal to Noise Ratio: ', self)
-        self.snr_text = QtGui.QLineEdit(self)
-        self.snr_unit = QtGui.QLabel(': 1', self)
-        self.rt_label = QtGui.QLabel('Retention Time Tolerance: ', self)
-        self.rt_text = QtGui.QLineEdit(self)
-        self.rt_unit = QtGui.QLabel('sec', self)
-        self.precursor_mz_label = QtGui.QLabel('Precursor m/z Tolerance: ', self)
-        self.precursor_mz_text = QtGui.QLineEdit(self)
-        self.precursor_mz_unit = QtGui.QLabel('Da', self)
-        self.peak_mz_label = QtGui.QLabel('Peak m/z Tolerance: ', self)
-        self.peak_mz_text = QtGui.QLineEdit(self)
-        self.peak_mz_unit = QtGui.QLabel('Da', self)
-        self.plus_minus = QtGui.QLabel('+/-', self)
-        self.plus_minus2 = QtGui.QLabel('+/-', self)
-        self.plus_minus3 = QtGui.QLabel('+/-', self)
-        self.noise_removal_only = QtGui.QCheckBox('Noise Removal Only', self)
-        self.blank_removal_only = QtGui.QCheckBox('Blank Removal Only', self)
-        self.advanced = QtGui.QLabel('Advanced Options', self)
-        self.cpu_label = QtGui.QLabel('Number of CPU Threads to Use: ', self)
-        self.cpu_text = QtGui.QLineEdit(self)
-        self.start = QtGui.QPushButton('Run', self)
-        self.verbose = QtGui.QCheckBox('Verbose', self)
-        self.init_gui()
-
-    def init_gui(self):
         self.set_default_args()
 
-        self.instrument_choice.addItem('LC-MS or LC-MS/MS (LCQ)', self)
-        self.instrument_choice.addItem('LC-MS or LC-MS/MS (qTOF)', self)
-        self.instrument_choice.addItem('MALDI Dried Droplet', self)
-
-        self.threshold_text.setText(str(self.arguments['ms1_threshold']))
-        self.threshold_text2.setText(str(self.arguments['ms2_threshold']))
-        self.snr_text.setText(str(self.arguments['signal_noise_ratio']))
-        self.rt_text.setText(str(self.arguments['retention_time_tolerance']))
-        self.precursor_mz_text.setText(str(self.arguments['precursor_mz_tolerance']))
-        self.peak_mz_text.setText(str(self.arguments['peak_mz_tolerance']))
-        self.cpu_text.setText(str(self.arguments['cpu']))
-
-        self.set_layout()
-        self.setGeometry(200, 100, 625, 475)
-        self.setWindowTitle('BLANKA GUI')
-        self.setWindowIcon(QtGui.QIcon('blanka.png'))
-        self.show()
+        self.retranslateUi(MainWindow)
 
         QtCore.QObject.connect(self.sample_file_browser, QtCore.SIGNAL('clicked()'), self.get_sample_path)
         QtCore.QObject.connect(self.control_file_browser, QtCore.SIGNAL('clicked()'), self.get_control_path)
         QtCore.QObject.connect(self.output_file_browser, QtCore.SIGNAL('clicked()'), self.get_output_path)
         QtCore.QObject.connect(self.start, QtCore.SIGNAL('clicked()'), self.run_blanka_gui)
 
-    def set_layout(self):
-        # fix positioning now that maldi dd template removed
-        self.sample_label.move(20, 20)
-        self.num_samples.move(490, 40)
-        self.sample_text.move(20, 40)
-        self.sample_text.setFixedWidth(400)
-        self.sample_file_browser.move(440, 38)
-        self.sample_file_browser.setFixedWidth(30)
-        self.control_label.move(20, 70)
-        self.num_controls.move(490, 90)
-        self.control_text.move(20, 90)
-        self.control_text.setFixedWidth(400)
-        self.control_file_browser.move(440, 88)
-        self.control_file_browser.setFixedWidth(30)
-        self.output_label.move(20, 120)
-        self.output_text.move(20, 140)
-        self.output_text.setFixedWidth(400)
-        self.output_file_browser.move(440, 138)
-        self.output_file_browser.setFixedWidth(30)
-        self.instrument_label.move(20, 180)
-        self.instrument_choice.move(100, 178)
-        self.threshold_label.move(20, 220)
-        self.threshold_text.move(270, 218)
-        self.threshold_label2.move(20, 250)
-        self.threshold_text2.move(270, 248)
-        self.snr_label.move(20, 280)
-        self.snr_text.move(130, 278)
-        self.snr_text.setFixedWidth(30)
-        self.snr_unit.move(165, 280)
-        self.rt_label.move(20, 310)
-        self.plus_minus.move(150, 310)
-        self.rt_text.move(173, 308)
-        self.rt_text.setFixedWidth(50)
-        self.rt_unit.move(232, 310)
-        self.precursor_mz_label.move(20, 340)
-        self.plus_minus2.move(145, 340)
-        self.precursor_mz_text.move(168, 338)
-        self.precursor_mz_text.setFixedWidth(50)
-        self.precursor_mz_unit.move(227, 340)
-        self.peak_mz_label.move(20, 370)
-        self.plus_minus3.move(122, 370)
-        self.peak_mz_text.move(145, 368)
-        self.peak_mz_text.setFixedWidth(50)
-        self.peak_mz_unit.move(204, 370)
-        self.noise_removal_only.move(300, 280)
-        self.blank_removal_only.move(300, 310)
-        self.verbose.move(300, 340)
-        self.advanced.move(20, 410)
-        self.cpu_label.move(20, 430)
-        self.cpu_text.move(180, 428)
-        self.cpu_text.setFixedWidth(30)
-        self.start.move(500, 430)
-
     def get_sample_path(self):
         if self.num_samples.isChecked():
-            self.sample_text.setText(str(QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory',
+            self.sample_text.setText(str(QtGui.QFileDialog.getExistingDirectory(None, 'Select Directory',
                                                                                 'C:\\')).replace('/', '\\'))
         else:
-            self.sample_text.setText(str(QtGui.QFileDialog.getOpenFileName(self, 'Open File',
+            self.sample_text.setText(str(QtGui.QFileDialog.getOpenFileName(None, 'Open File',
                                                                            'C:\\')).replace('/', '\\'))
 
     def get_control_path(self):
         if self.num_controls.isChecked():
-            self.control_text.setText(str(QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory',
+            self.control_text.setText(str(QtGui.QFileDialog.getExistingDirectory(None, 'Select Directory',
                                                                                  'C:\\')).replace('/', '\\'))
         else:
-            self.control_text.setText(str(QtGui.QFileDialog.getOpenFileName(self, 'Open File',
+            self.control_text.setText(str(QtGui.QFileDialog.getOpenFileName(None, 'Open File',
                                                                             'C:\\')).replace('/', '\\'))
 
     def get_output_path(self):
-        self.output_text.setText(str(QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory',
+        self.output_text.setText(str(QtGui.QFileDialog.getExistingDirectory(None, 'Select Directory',
                                                                             'C:\\')).replace('/', '\\'))
 
     def set_default_args(self):
@@ -170,8 +210,8 @@ class BlankaGUI(QtGui.QWidget):
             self.arguments['instrument'] = 'qtof'
         elif self.instrument_choice.currentText() == 'MALDI Dried Droplet':
             self.arguments['instrument'] = 'dd'
-        self.arguments['ms1_threshold'] = float(self.threshold_text.text())
-        self.arguments['ms2_threshold'] = float(self.threshold_text2.text())
+        self.arguments['ms1_threshold'] = float(self.ms1_threshold_text.text())
+        self.arguments['ms2_threshold'] = float(self.ms2_threshold_text.text())
         self.arguments['signal_noise_ratio'] = int(self.snr_text.text())
         self.arguments['retention_time_tolerance'] = float(self.rt_text.text())
         self.arguments['precursor_mz_tolerance'] = float(self.precursor_mz_text.text())
@@ -204,7 +244,6 @@ class BlankaGUI(QtGui.QWidget):
         if self.arguments['cpu'] >= cpu_count():
             error_text += '* Number of threads specified exceeds number of available threads. Your computer has ' \
                           + str(cpu_count() - 1) + ' usable threads.\n\n'
-            error_text += '* File is not Excel file. Please load appropriate spreadsheet.\n\n'
         if self.arguments['noise_removal_only'] and self.arguments['blank_removal_only']:
             error_text += '* --noise_removal_only and --blank_removal_only both cannot be selected at once.\n\n'
         if error_text != '':
@@ -217,53 +256,29 @@ class BlankaGUI(QtGui.QWidget):
             return False
         return True
 
-    def log(self, blanka_shell):
-        month_dict = {'1': 'JAN', '2': 'FEB', '3': 'MAR', '4': 'APR', '5': 'MAY', '6': 'JUN',
-                      '7': 'JUL', '8': 'AUG', '9': 'SEP', '10': 'OCT', '11': 'NOV', '12': 'DEC'}
-        today = datetime.datetime.today()
-        with open(self.arguments['output'] + '\\blanka_log_' + str(today.year) + \
-                  month_dict[str(today.month)] + str(today.day) + '_' + str(today.hour) + str(today.minute) + \
-                  str(today.second) + '.txt', 'w') as logfile:
-            output = ''
-            while True:
-                terminal = blanka_shell.stdout.readline()
-                output += terminal
-                if terminal == '' and blanka_shell.poll() is not None:
-                    break
-                if terminal:
-                    if self.arguments['verbose'] == True:
-                        log_box.setText(output)
-                    # instead of print, create verbose window here
-            logfile.write(output)
-
     def run_blanka_gui(self):
         self.get_args_gui()
         if not self.args_check_gui():
             return None
         # runs BLANKA by generating a command line command and creating a subprocess
-        blanka_cmd = 'python ' + os.path.dirname(__file__) + '/run_blanka_v3.py '
+        blanka_cmd = 'python ' + os.path.dirname(__file__) + '/run_blanka.py '
         for key, value in self.arguments.iteritems():
-            if key == 'noise_removal_only' or key == 'blank_removal_only':
+            if key == 'noise_removal_only' or key == 'blank_removal_only' or key == 'verbose':
                 if value:
                     blanka_cmd += '--' + str(key) + ' ' + str(value) + ' '
             elif value != '':
                 blanka_cmd += '--' + str(key) + ' ' + str(value) + ' '
-        if self.arguments['verbose'] == True:
-            if self.arguments['output'] == '':
-                self.arguments['output'] = os.path.split(self.arguments['sample'])[0]
-            month_dict = {'1': 'JAN', '2': 'FEB', '3': 'MAR', '4': 'APR', '5': 'MAY', '6': 'JUN',
-                          '7': 'JUL', '8': 'AUG', '9': 'SEP', '10': 'OCT', '11': 'NOV', '12': 'DEC'}
-            today = datetime.datetime.today()
-            blanka_cmd += '|& tee ' + self.arguments['output'] + '\\blanka_log_' + str(today.year) + \
-                          month_dict[str(today.month)] + str(today.day) + '_' + str(today.hour) + str(today.minute) + \
-                          str(today.second) + '.txt'
-            blanka_cmd = 'powershell.exe -command "' + blanka_cmd + '"'
-            blanka_cmd = blanka_cmd.replace('\b', '\\b')
         print blanka_cmd
         if platform.system() == 'Windows':
-            subprocess.call(blanka_cmd, creationflags=CREATE_NEW_CONSOLE)
+            if self.arguments['verbose']:
+                subprocess.call(blanka_cmd, creationflags=CREATE_NEW_CONSOLE)
+            else:
+                subprocess.call(blanka_cmd)
         else:
-            subprocess.call(blanka_cmd, creationflags=CREATE_NEW_CONSOLE, shell=True)
+            if self.arguments['verbose']:
+                subprocess.call(blanka_cmd, creationflags=CREATE_NEW_CONSOLE, shell=True)
+            else:
+                subprocess.call(blanka_cmd, shell=True)
 
         # BLANKA has completed running popup
         finish_box = QtGui.QMessageBox()
@@ -272,10 +287,47 @@ class BlankaGUI(QtGui.QWidget):
         finish_box.setWindowIcon(QtGui.QIcon('blanka.png'))
         finish_box.exec_()
 
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(_translate("MainWindow", "BLANKA GUI", None))
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.sample_label.setText(_translate("MainWindow", "Sample", None))
+        self.sample_file_browser.setText(_translate("MainWindow", "...", None))
+        self.num_samples.setText(_translate("MainWindow", "Multiple Sample Files", None))
+        self.control_label.setText(_translate("MainWindow", "Control", None))
+        self.control_file_browser.setText(_translate("MainWindow", "...", None))
+        self.num_controls.setText(_translate("MainWindow", "Multiple Control Files", None))
+        self.output_label.setText(_translate("MainWindow", "Output Directory (Optional)", None))
+        self.output_file_browser.setText(_translate("MainWindow", "...", None))
+        self.instrument_label.setText(_translate("MainWindow", "Experiment", None))
+        self.instrument_choice.setItemText(0, _translate("MainWindow", "LC-MS or LC-MS/MS (LCQ)", None))
+        self.instrument_choice.setItemText(1, _translate("MainWindow", "LC-MS or LC-MS/MS (qTOF)", None))
+        self.instrument_choice.setItemText(2, _translate("MainWindow", "MALDI Dried Droplet", None))
+        self.ms1_threshold_label.setText(_translate("MainWindow", "Blank Removal Relative Intensity Threshold (MS1):", None))
+        self.ms2_threshold_label.setText(_translate("MainWindow", "Blank Removal Relative Intensity Threshold (MS2):", None))
+        self.snr_label.setText(_translate("MainWindow", "Signal to Noise Ratio:", None))
+        self.snr_unit.setText(_translate("MainWindow", ": 1", None))
+        self.rt_label.setText(_translate("MainWindow", "Retention Time Tolerance: +/-", None))
+        self.rt_unit.setText(_translate("MainWindow", "sec", None))
+        self.precursor_mz_label.setText(_translate("MainWindow", "Precursor m/z Tolerance: +/-", None))
+        self.precursor_mz_unit.setText(_translate("MainWindow", "Da", None))
+        self.peak_mz_label.setText(_translate("MainWindow", "Peak m/z Tolerance: +/-", None))
+        self.peak_mz_unit.setText(_translate("MainWindow", "Da", None))
+        self.noise_removal_only.setText(_translate("MainWindow", "Noise Removal Only", None))
+        self.blank_removal_only.setText(_translate("MainWindow", "Blank Removal Only", None))
+        self.verbose.setText(_translate("MainWindow", "Verbose", None))
+        self.advanced_options_label.setText(_translate("MainWindow", "Advanced Options", None))
+        self.cpu_label.setText(_translate("MainWindow", "Number of CPU Threads to Use:", None))
+        self.start.setText(_translate("MainWindow", "Run", None))
+
+
 def main():
     app = QtGui.QApplication(sys.argv)
-    blanka_gui = BlankaGUI()
+    MainWindow = QtGui.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

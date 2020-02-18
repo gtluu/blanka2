@@ -3,6 +3,7 @@ import xmlschema, argparse, urllib, collections
 import sys, os, platform, subprocess
 import re, base64, struct, hashlib
 import pandas, numpy
+import datetime, timeit, logging
 from multiprocessing import Pool, cpu_count
 from functools import partial
 
@@ -162,30 +163,51 @@ def get_args():
 def args_check(args):
     # check sample and control path
     if not os.path.exists(args['sample']):
-        print "Sample path does not exist. Exiting..."
+        logging.error(str(datetime.datetime.now()) + ':' + 'Sample path does not exist...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
         sys.exit(1)
     if not os.path.exists(args['control']):
-        print "Control path does not exist. Exiting..."
+        logging.error(str(datetime.datetime.now()) + ':' + 'Control path does not exist...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
         sys.exit(1)
     # check blank removal thresholds
     if args['ms1_threshold'] > 1:
-        print "MS1 Threshold must be less than or equal to 1."
+        logging.error(str(datetime.datetime.now()) + ':' + 'MS1 Threshold must be <= 1...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
     if args['ms2_threshold'] > 1:
-        print "MS2 Threshold must be less than or equal to 1."
+        logging.error(str(datetime.datetime.now()) + ':' + 'MS2 Threshold must be <= 1...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
     # check --cpu
     if args['cpu'] >= cpu_count():
-        print "Number of threads specified exceeds number of available threads. Your computer has " \
-              + str(cpu_count() - 1) + " usable threads. Exiting..."
+        logging.error(str(datetime.datetime.now()) + ':' + 'Number of threads specified exceeds number of available threads...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Your computer has ' + str(cpu_count() - 1) + ' usable threads...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
         sys.exit(1)
     # check --instrument
     if not args['instrument'] == 'lcq' and not args['instrument'] == 'qtof' and not args['instrument'] == 'dd':
-        print "Invalid instrument. Exiting..."
+        logging.error(str(datetime.datetime.now()) + ':' + 'Invalid instrument...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
         sys.exit(1)
     # check noise and blank removal only options
     if args['noise_removal_only'] and args['blank_removal_only']:
-        print "--noise_removal_only and --blank_removal_only both cannot be selected at once. Please choose one. \
-              Exiting..."
+        logging.error(str(datetime.datetime.now()) + ':' + '--noise_removal_only and --blank_removal_only both cannot be selected at once...')
+        logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
         sys.exit(1)
+
+
+def get_datetime():
+    dt = str(datetime.datetime.now())
+    dt = dt.replace(' ', '_')
+    dt = dt.replace(':', '-')
+    dt = dt.replace('.', '-')
+    return dt
+
+
+def write_params(args, logfile):
+    with open(os.path.join(os.path.split(logfile)[0], 'parameters_' + get_datetime() + '.txt'), 'a') as params:
+        for key, value in args.iteritems():
+            params.write('[' + str(key) + ']' + '\n' + str(value) + '\n')
+
 
 # scan directory for .mzXML files
 def mzxml_data_detection(directory):
@@ -213,7 +235,7 @@ def msconvert(args, msconvert_list):
         msconvertcmd = msconvert_path + filename + " -o " + args['output'] + ' --mzXML --32 --mz32 --inten32\
                                     --filter "titleMaker <RunId>.<ScanNumber>.<ScanNumber>.<ChargeState>"\
                                     --filter "peakPicking true 1-2"'
-        print msconvertcmd
+        logger.info(str(datetime.datetime.now()) + ':' + msconvertcmd)
         if platform.system() == 'Windows':
             subprocess.call(msconvertcmd)
         else:
@@ -396,18 +418,15 @@ def load_sample_data(args, filetypes):
 # does not take into account multiple replicates, real vs not spectra, etc.
 def load_control_data(args, filetypes):
     if os.path.splitext(args['control'])[1].lower() == '.mzxml':
-        print 'Loading ' + args['control'] + '...'
         return [read_mzxml(args['control'])['msRun']['scan']]
     elif os.path.splitext(args['control'])[1].lower() in filetypes:
         control_file = msconvert(args, [args['control']])
-        print 'Loading control data...'
         return [read_mzxml(control_file[0])['msRun']['scan']]
     else:
         control_files = mzxml_data_detection(args['control'])
         if control_files == []:
             raw_control_files = raw_data_detection(args, filetypes, args['control'])
             control_files = msconvert(args, raw_control_files)
-        print 'Loading control data...'
         control_data = [read_mzxml(control)['msRun']['scan'] for control in control_files]
         # generate consensus spectra for maldi control replicates
         if args['instrument'] == 'dd':
@@ -434,10 +453,13 @@ def noise_removal(snr, scan_dict):
 # remove control spectrum peaks from sample spectrum if m/z within specified tolerance for MS1 spectra
 # remove sample spectrum if corresponding spectrum is found in control dataset for MS^n spectra
 # return None if control spectrum empty
+# return sample spectrum if sample spectrum empty
 # return None if control spectrum matched peaks make up <= MS1 threshold of number of sample peaks in MS1
 # return None if control spectrum matched peaks make up <= MS2 threshold of number of sample peaks in MS2
 def blank_removal(peak_mz_tolerance, ms1_threshold, ms2_threshold, control_spectrum, sample_spectrum):
     try:
+        if sample_spectrum['peaks'][0]['$'].empty:
+            return sample_spectrum
         blank_subtracted_df = pandas.merge_asof(sample_spectrum['peaks'][0]['$'].sort_values('mz'),
                                                 control_spectrum['peaks'][0]['$'].sort_values('mz'), on='mz',
                                                 tolerance=peak_mz_tolerance, direction='nearest').fillna(0)
@@ -447,7 +469,7 @@ def blank_removal(peak_mz_tolerance, ms1_threshold, ms2_threshold, control_spect
         elif int(sample_spectrum['@msLevel']) >= 2:
             threshold = ms2_threshold
         if (sum(blank_subtracted_df['intensity_x'].values.tolist()) /
-            sum(sample_spectrum['peaks'][0]['$']['intensity'].values.tolist())) <= threshold:
+        sum(sample_spectrum['peaks'][0]['$']['intensity'].values.tolist())) <= threshold:
             blank_subtracted_df = blank_subtracted_df[['mz', 'intensity_x']].rename(columns={'mz': 'mz',
                                                                                              'intensity_x': 'intensity'})
             sample_spectrum['peaks'][0]['$'] = blank_subtracted_df
@@ -523,3 +545,6 @@ def spectra_compare(args, control_spectra, sample_spectrum):
     else:
         return blank_removal(args['peak_mz_tolerance'], args['ms1_threshold'], args['ms2_threshold'], control_spectrum,
                              sample_spectrum)
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

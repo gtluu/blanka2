@@ -1,9 +1,9 @@
 import xml.etree.cElementTree as ET
 import xmlschema, argparse, urllib, collections
-import sys, os, platform, subprocess
-import re, base64, struct, hashlib
+import sys, os, platform, subprocess, io
+import re, base64, struct, hashlib, glob
 import pandas, numpy
-import datetime, timeit, logging
+import datetime, timeit, ConfigParser, logging
 from multiprocessing import Pool, cpu_count
 from functools import partial
 
@@ -223,19 +223,44 @@ def raw_data_detection(args, filetypes, directory):
         return [os.path.join(dirpath, filename) for dirpath, dirnames, filenames in os.walk(directory)
                 for filename in filenames if os.path.splitext(filename)[1].lower() in filetypes]
 
+
+def get_msconvert_path():
+    # try to get msconvert.exe from default Windows Proteowizard installation path
+    try:
+        msconvert_path = glob.glob('C:\\Program Files\\Proteowizard\\*\\msconvert.exe')[0]
+        if os.path.isfile(msconvert_path):
+            return msconvert_path
+        else:
+            raise IndexError
+    except IndexError:
+        with open(os.path.dirname(__file__) + '/config.ini', 'r') as config_file:
+            config = config_file.read()
+        config_parser = ConfigParser.RawConfigParser(allow_no_value=True)
+        config_parser.readfp(io.BytesIO(config))
+        for param in config_parser.sections():
+            if param == 'msconvert':
+                for option in config_parser.options(param):
+                    if option == 'path':
+                        msconvert_path = config_parser.get(param, option)
+                        if os.path.isfile(msconvert_path):
+                            return msconvert_path
+                        else:
+                            logging.error(str(datetime.datetime.now()) + ':' + 'Path to msconvert.exe not found.')
+                            logging.error(str(datetime.datetime.now()) + ':' + 'Exiting...')
+                            sys.exit(1)
+
+
 # convert raw data files detected into .mzXML format using MSConvert and default Sanchez Lab settings
 # NOTE TO SELF make settings changeable from config file
 def msconvert(args, msconvert_list):
-    with open(os.path.dirname(__file__) + '/config.ini', 'r') as config_file:
-        msconvert_path = config_file.read().split('=')[1] + ' '
     output_file_list = []
     for filename in msconvert_list:
         if args['output'] == '':
             args['output'] = os.path.split(filename)[0]
-        msconvertcmd = msconvert_path + filename + " -o " + args['output'] + ' --mzXML --32 --mz32 --inten32\
-                                    --filter "titleMaker <RunId>.<ScanNumber>.<ScanNumber>.<ChargeState>"\
+        msconvertcmd = args['msconvert_path'] + ' ' + filename + " -o " + args['output'] + ' --mzXML --32 --mz32\
+                                    --inten32 --filter "titleMaker <RunId>.<ScanNumber>.<ScanNumber>.<ChargeState>"\
                                     --filter "peakPicking true 1-2"'
-        logger.info(str(datetime.datetime.now()) + ':' + msconvertcmd)
+        logging.info(str(datetime.datetime.now()) + ':' + msconvertcmd)
         if platform.system() == 'Windows':
             subprocess.call(msconvertcmd)
         else:

@@ -87,6 +87,7 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
 
     args_check(arguments)
+    arguments['msconvert_path'] = get_msconvert_path()
     arguments['version'] = '1'
 
     write_params(arguments, logfile)

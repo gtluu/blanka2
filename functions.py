@@ -1,11 +1,12 @@
 import xml.etree.cElementTree as ET
-import xmlschema, argparse, urllib, collections
-import sys, os, platform, subprocess, io
-import re, base64, struct, hashlib, glob
+import xmlschema, argparse, urllib, collections, ConfigParser, logging
+import sys, os, platform, subprocess, io, glob
+import re, base64, struct, hashlib
 import pandas, numpy
-import datetime, timeit, ConfigParser, logging
+import datetime, timeit
 from multiprocessing import Pool, cpu_count
 from functools import partial
+
 
 def unicode_to_string(data):
     if isinstance(data, basestring):
@@ -17,6 +18,7 @@ def unicode_to_string(data):
     else:
         return data
 
+
 def get_mzxml_schema(schema_path):
     if os.path.exists(schema_path):
         with open(schema_path, 'r') as mzxml_file:
@@ -27,12 +29,14 @@ def get_mzxml_schema(schema_path):
         xsd_file.write(xsd)
     return xsd_filename
 
+
 def decode_peaks(peaks):
     peak_list = base64.b64decode(peaks)
     peak_list = struct.unpack('>' + str(len(peak_list) / 4) + 'L', peak_list)
     mz_list = [struct.unpack('f', struct.pack('I', i))[0] for i in peak_list[::2]]
     int_list = [struct.unpack('f', struct.pack('I', i))[0] for i in peak_list[1::2]]
     return pandas.DataFrame(list(zip(mz_list, int_list)), columns=['mz', 'intensity'])
+
 
 def encode_peaks(peaks):
     mz_list = peaks['mz'].values.tolist()
@@ -42,6 +46,7 @@ def encode_peaks(peaks):
     peak_list = [struct.unpack('I', struct.pack('f', i))[0] for i in peak_list]
     peak_list = struct.pack('>' + str(len(peak_list)) + 'L', *peak_list)
     return base64.b64encode(peak_list)
+
 
 def read_mzxml(filepath):
     xsd = xmlschema.XMLSchema(get_mzxml_schema(filepath))
@@ -54,6 +59,7 @@ def read_mzxml(filepath):
         scan_dict['nameValue'] = {}
     return mzxml_dict
 
+
 def update_dataset_metadata(mzxml_dict):
     # msRun attrib
     mzxml_dict['msRun']['@scanCount'] = long(len(mzxml_dict['msRun']['scan']))
@@ -61,6 +67,7 @@ def update_dataset_metadata(mzxml_dict):
     mzxml_dict['msRun']['@startTime'] = 'PT' + str(min(ret_time_list)) + 'S'
     mzxml_dict['msRun']['@endTime'] = 'PT' + str(max(ret_time_list)) + 'S'
     return mzxml_dict
+
 
 def update_scan_metadata(scan_dict):
     try:
@@ -102,6 +109,7 @@ def update_scan_metadata(scan_dict):
     del scan_dict['nameValue']
     return scan_dict
 
+
 def write_mzxml(filename, args, mzxml_dict):
     xsd = xmlschema.XMLSchema(get_mzxml_schema(mzxml_dict['@xsi:schemaLocation'].split(' ')[1]))
     pool = Pool(processes=args['cpu'])
@@ -130,12 +138,13 @@ def write_mzxml(filename, args, mzxml_dict):
     with open(filename, 'w') as mzxml_file:
         mzxml_file.write(mzxml_tree)
 
+
 def get_args():
     parser = argparse.ArgumentParser()
     # required args
     parser.add_argument('--sample', help="sample input directory/file", required=True, type=str)
     parser.add_argument('--control', help="control input file path with '.mzXML' file extension (lcq/qtof) or \
-                                                name of control sample spot (dd)", required=True, type=str)
+                                           name of control sample spot (dd)", required=True, type=str)
     parser.add_argument('--instrument', help="instrument/experiment (choose 'lcq', 'qtof', 'dd'", required=True,
                         type=str)
     # optional args
@@ -159,6 +168,7 @@ def get_args():
     parser.add_argument('--verbose', help="display progress information", default=False, type=bool)
     arguments = parser.parse_args()
     return vars(arguments)
+
 
 def args_check(args):
     # check sample and control path
@@ -271,14 +281,18 @@ def msconvert(args, msconvert_list):
             output_file_list.append(args['output'] + '\\' + os.path.split(filename)[1] + '.mzXML')
     return output_file_list
 
+
 def calculate_relative_intensity(max_intensity, intensity):
     return (intensity / max_intensity) * 100
+
 
 def ppm_to_mz(error, mass):
     return (error / (10**6)) * mass
 
+
 def mz_to_ppm(error, mass):
     return (error / mass) * (10**6)
+
 
 # quality score based on signal to noise ratio
 def calculate_quality_score(scan_dict):
@@ -291,8 +305,10 @@ def calculate_quality_score(scan_dict):
     scan_dict['nameValue']['quality_score'] = {'@name': 'qualityScore', '@value': quality_score}
     return scan_dict
 
+
 def get_tolerance_values():
     pass
+
 
 # create bins for dot product calculation
 def get_binned_peaks(list_of_scan_dicts):
@@ -306,6 +322,7 @@ def get_binned_peaks(list_of_scan_dicts):
                                                                      bins=bins)).aggregate(sum)
         scan_dict['nameValue']['binned_peaks'] = {'@name': 'binned_peaks', '@value': binned_peaks}
     return list_of_scan_dicts
+
 
 def dot_product_calculation(ref_scan_dict, scan_dict):
     try:
@@ -326,6 +343,7 @@ def dot_product_calculation(ref_scan_dict, scan_dict):
         scan_dict['nameValue']['dot_product_score'] = {'@name': 'dotProductScore', '@value': 0}
     return scan_dict
 
+
 def multi_merge_asof(tolerance, list_of_scan_dicts):
     for count, scan_dict in enumerate(list_of_scan_dicts):
         # generate consensus spectrum in first/top scan
@@ -341,6 +359,7 @@ def multi_merge_asof(tolerance, list_of_scan_dicts):
                                                                '@value': consensus_spectrum}
     # return first/top scan with newly generated consensus spectrum
     return list_of_scan_dicts[0]
+
 
 def cluster_replicates(args, ranked_scan_dicts):
     pool = Pool(processes=args['cpu'])
@@ -368,6 +387,7 @@ def cluster_replicates(args, ranked_scan_dicts):
     # return largest cluster of scan_dicts
     return sorted(list_largest_clusters, key=lambda x: x[1])[0][0]
 
+
 def align_replicates(args, cluster):
     pool = Pool(processes=args['cpu'])
     for scan_dict in cluster:
@@ -381,6 +401,7 @@ def align_replicates(args, cluster):
     pool.join()
     # return list_of_scan_dicts with consensus spectrum generated
     return [multi_merge_asof(args['peak_mz_tolerance'], cluster) for cluster in list_cluster_combos]
+
 
 def preprocess_consensus_spectrum(scan_dict):
     ion_col = [i for i in scan_dict['nameValue']['consensus']['@value'].columns.values.tolist() if i.startswith('ion')]
@@ -397,6 +418,7 @@ def preprocess_consensus_spectrum(scan_dict):
                                                              [['ave_mz', 'ave_rel_inten']]
     return scan_dict
 
+
 def multi_merge(cluster):
     for count, scan_dict in enumerate(cluster):
         if count == 0:
@@ -407,6 +429,7 @@ def multi_merge(cluster):
     ave_rel_inten = [i for i in consensus_df.columns.values.tolist() if i.startswith('ave_rel_inten')]
     consensus_df['intensity'] = consensus_df[ave_rel_inten].mean(axis=1, skipna=True)
     return consensus_df[['ave_mz', 'intensity']].rename(columns={'ave_mz': 'mz', 'intensity': 'intensity'})
+
 
 def generate_consensus_spectrum(args, list_of_scan_dicts):
     pool = Pool(processes=args['cpu'])
@@ -419,6 +442,7 @@ def generate_consensus_spectrum(args, list_of_scan_dicts):
     pool.close()
     pool.join()
     return {'peaks': [{'$': multi_merge(preprocessed_cluster)}]}
+
 
 # load in sample data; converts all files (sample and control) if needed
 # loads .mzXML data if found or converts raw data if not; only converts sample data if lcq/qtof; converts all if dd
@@ -438,6 +462,7 @@ def load_sample_data(args, filetypes):
             # list of .mzXML files
             sample_file_list = msconvert(args, raw_file_list)
     return sample_file_list
+
 
 # load control dataset
 # does not take into account multiple replicates, real vs not spectra, etc.
@@ -459,6 +484,7 @@ def load_control_data(args, filetypes):
         else:
             return control_data
 
+
 # remove noise from dataset using average of 5% lowest intensity peaks as noise level and user defined SNR
 def noise_removal(snr, scan_dict):
     try:
@@ -474,6 +500,7 @@ def noise_removal(snr, scan_dict):
     except KeyError:
         pass
     return scan_dict
+
 
 # remove control spectrum peaks from sample spectrum if m/z within specified tolerance for MS1 spectra
 # remove sample spectrum if corresponding spectrum is found in control dataset for MS^n spectra
@@ -501,6 +528,7 @@ def blank_removal(peak_mz_tolerance, ms1_threshold, ms2_threshold, control_spect
             return sample_spectrum
     except KeyError:
         return sample_spectrum
+
 
 # select control spectrum for LC-MS data bsed on MS mode, retention time and precursor m/z
 def select_control_spectrum_lcms(args, control_spectra, sample_spectrum):
@@ -561,6 +589,7 @@ def select_control_spectrum_lcms(args, control_spectra, sample_spectrum):
         elif len(control_spectra_list) == 1:
             # return control spectra if only one found
             return control_spectra_list[0]
+
 
 # select control spectrum and remove blanks
 def spectra_compare(args, control_spectra, sample_spectrum):

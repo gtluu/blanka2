@@ -1,1 +1,1 @@
-start pythonw.exe %~dp0gui.py
+start pythonw.exe %~dp0blanka/gui.py

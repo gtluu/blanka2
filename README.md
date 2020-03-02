@@ -32,7 +32,7 @@ ConfigParser\
 logging 0.5.1.2 or higher\
 multiprocessing 0.70a1 or higher\
 functools\
-PyQt4\
+PyQt4
 
 ## Usage
 See [here](https://gtluu.github.io/blanka/documentation/command_line/index.html "BLANKA Command Line Usage") for information on using BLANKA from the command line or [here](https://gtluu.github.io/blanka/documentation/gui/index.html "BLANKA GUI Usage") for information on using BLANKA GUI.

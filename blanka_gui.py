@@ -156,7 +156,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
 
-        MainWindow.setWindowIcon(QtGui.QIcon('blanka.png'))
+        MainWindow.setWindowIcon(QtGui.QIcon('media/blanka.png'))
 
         self.arguments = {}
         self.set_default_args()
@@ -258,7 +258,7 @@ class Ui_MainWindow(object):
             error_box = QtGui.QMessageBox()
             error_box.setText(error_text)
             error_box.setWindowTitle('Error')
-            error_box.setWindowIcon(QtGui.QIcon('blanka.png'))
+            error_box.setWindowIcon(QtGui.QIcon('media/blanka.png'))
             error_box.exec_()
             return False
         return True
@@ -268,7 +268,7 @@ class Ui_MainWindow(object):
         finish_box = QtGui.QMessageBox()
         finish_box.setText('BLANKA successfully finished!')
         finish_box.setWindowTitle('BLANKA GUI')
-        finish_box.setWindowIcon(QtGui.QIcon('blanka.png'))
+        finish_box.setWindowIcon(QtGui.QIcon('media/blanka.png'))
         finish_box.exec_()
 
     def run_blanka_gui(self):

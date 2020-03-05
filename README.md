@@ -8,7 +8,7 @@ This repo contains the current development version of BLANKA. For the publicatio
 No installation is required for use of BLANKA. Simply download the scripts and place them in the desired directory. If converting raw data during processing, the path a local installation of MSConvert must be configured. Additionally, Python 2 must be added to path to use BLANKA GUI. See [BLANKA's installation page](https://gtluu.github.io/blanka/documentation/installation/index.html "BLANKA Installation") for more details.
 
 ## Dependencies
-Python 2.7.15 or higher\
+Python 2.7.15 or higher (Python 3 support coming soon)\
 cElementTree\
 xmlschema 1.0.15 or higher\
 argparse 1.1 or higher\

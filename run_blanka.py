@@ -57,7 +57,7 @@ def run_blanka(args):
 
             # Remove selected spectra/scans from .mzXML file and modify metadata accordingly.
             logging.info(get_timestamp() + ':' + 'Writing data to ' + blanka_output + '...')
-            #modify_mzxml(blanka_output, spectra_for_removal, sample)
+            modify_mzxml(blanka_output, spectra_for_removal, sample)
 
 
 if __name__ == '__main__':

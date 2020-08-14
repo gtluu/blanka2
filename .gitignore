@@ -1,2 +1,9 @@
 /venv/
 /.idea/
+/blanka_gui/
+/blanka_v1_env/
+/blanka2_old/
+/data/
+/xml/
+.gitignore
+/depracated/

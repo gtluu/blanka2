@@ -3,9 +3,9 @@ import platform
 import subprocess
 import glob
 import io
-import ConfigParser
-from mzxml_io import *
-from generate_consensus_spectrum import *
+import configparser
+from .mzxml_io import *
+from .generate_consensus_spectrum import *
 
 
 # Scan directory for mzXML files.
@@ -43,7 +43,7 @@ def msconvert(args, msconvert_list):
         except IndexError:
             with open(os.path.dirname(__file__) + '/config.ini', 'r') as config_file:
                 config = config_file.read()
-            config_parser = ConfigParser.RawConfigParser(allow_no_value=True)
+            config_parser = configparser.RawConfigParser(allow_no_value=True)
             config_parser.readfp(io.BytesIO(config))
             for param in config_parser.sections():
                 if param == 'msconvert':

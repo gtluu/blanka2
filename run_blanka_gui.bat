@@ -1,1 +1,1 @@
-start pythonw.exe %~dp0blanka/gui.py
+C:\ProgramData\Anaconda2\python.exe %~dp0blanka_gui.py

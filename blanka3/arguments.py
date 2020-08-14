@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-from timestamp import *
+from .timestamp import *
 from multiprocessing import cpu_count
 
 
@@ -77,7 +77,7 @@ def args_check(args):
 # Write parameters used to run BLANKA to text file.
 def write_params(args, logfile):
     with open(os.path.join(os.path.split(logfile)[0], 'parameters_' + get_timestamp() + '.txt'), 'a') as params:
-        for key, value in args.iteritems():
+        for key, value in args.items():
             params.write('[' + str(key) + ']' + '\n' + str(value) + '\n')
 
 

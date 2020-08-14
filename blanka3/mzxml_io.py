@@ -2,14 +2,14 @@ import collections
 import xmlschema
 import pandas as pd
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import base64
 import struct
 import re
 import hashlib
 import xml.etree.cElementTree as ET
 from multiprocessing import Pool
-from timestamp import *
+from .timestamp import *
 
 
 # Download mzXML schema based on file namespace.
@@ -20,8 +20,8 @@ def get_mzxml_schema(schema_path):
             schema_path = schema_path.split('">')[0]
             schema_path = schema_path.split(' ')[1]
     xsd_filename = os.path.split(schema_path)[-1]
-    xsd = urllib.urlopen(schema_path).read().decode('utf-8')
-    with open(xsd_filename, 'w') as xsd_file:
+    xsd = urllib.request.urlopen(schema_path).read().decode('utf-8')
+    with open(os.path.join(xml, xsd_filename), 'w') as xsd_file:
         xsd_file.write(xsd)
     return xsd_filename
 
@@ -31,15 +31,15 @@ def read_mzxml(filepath):
     xsd = xmlschema.XMLSchema(get_mzxml_schema(filepath))
 
     # Convert unicode characters to string.
-    def unicode_to_string(unicode):
-        if isinstance(unicode, basestring):
-            return str(unicode)
-        elif isinstance(unicode, collections.Mapping):
-            return dict(map(unicode_to_string, unicode.iteritems()))
-        elif isinstance(unicode, collections.Iterable):
-            return type(unicode)(map(unicode_to_string, unicode))
+    def unicode_to_string(str):
+        if isinstance(str, str):
+            return str(str)
+        elif isinstance(str, collections.Mapping):
+            return dict(list(map(unicode_to_string, iter(str.items()))))
+        elif isinstance(str, collections.Iterable):
+            return type(str)(list(map(unicode_to_string, str)))
         else:
-            return unicode
+            return str
 
     # Use lax validation for datasets from MSConvert.
     # MSConvert causes error with strict validation due to multiple dataProcessing elements.
@@ -70,7 +70,7 @@ def write_mzxml(filename, args, mzxml_dict):
 
     def update_msrun_metadata(mzxml_dict):
         # msRun attrib
-        mzxml_dict['msRun']['@scanCount'] = long(len(mzxml_dict['msRun']['scan']))
+        mzxml_dict['msRun']['@scanCount'] = int(len(mzxml_dict['msRun']['scan']))
         ret_time_list = [float(i['@retentionTime'][2:-1]) for i in mzxml_dict['msRun']['scan']]
         mzxml_dict['msRun']['@startTime'] = 'PT' + str(min(ret_time_list)) + 'S'
         mzxml_dict['msRun']['@endTime'] = 'PT' + str(max(ret_time_list)) + 'S'
@@ -89,7 +89,7 @@ def write_mzxml(filename, args, mzxml_dict):
     # Update scan metadata based on modified spectra.
     def update_scan_metadata(scan_dict):
         try:
-            scan_dict['@peaksCount'] = long(len(scan_dict['peaks'][0]['$']))
+            scan_dict['@peaksCount'] = int(len(scan_dict['peaks'][0]['$']))
         except:
             logging.exception(get_timestamp() + ':' + 'Error writing peaksCount...')
         try:
@@ -134,13 +134,13 @@ def write_mzxml(filename, args, mzxml_dict):
     # identify/write index, indexOffset, and sha1 data
     # Write index elements.
     scan_offsets = [i.start() for i in re.finditer('<scan', mzxml_tree)]
-    mzxml_dict['index']['offset'] = [{'@id': long(count), '$': long(i)}
+    mzxml_dict['index']['offset'] = [{'@id': int(count), '$': int(i)}
                                      for count, i in enumerate(scan_offsets, start=1)]
     encoded_element = xsd.elements['mzXML'].encode(mzxml_dict, validation='lax', unordered=True)[0]
     mzxml_tree = ET.tostring(encoded_element, encoding='ISO-8859-1', method='xml')
 
     # Write index offset element.
-    mzxml_dict['indexOffset'] = long([i.start() for i in re.finditer('<index', mzxml_tree)][0])
+    mzxml_dict['indexOffset'] = int([i.start() for i in re.finditer('<index', mzxml_tree)][0])
     encoded_element = xsd.elements['mzXML'].encode(mzxml_dict, validation='lax', unordered=True)[0]
     mzxml_tree = ET.tostring(encoded_element, encoding='ISO-8859-1', method='xml')
 

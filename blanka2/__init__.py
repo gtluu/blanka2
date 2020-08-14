@@ -10,7 +10,6 @@ import ConfigParser
 import numpy as np
 import pandas as pd
 import collections
-import xmlschema
 import urllib
 import base64
 import struct
@@ -18,7 +17,7 @@ import re
 import hashlib
 import datetime
 import timeit
-import xml.etree.cElementTree as ET
+from lxml import etree as et
 from multiprocessing import Pool, cpu_count
 from functools import partial
 

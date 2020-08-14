@@ -1,4 +1,4 @@
-from generate_consensus_spectrum import *
+from .generate_consensus_spectrum import *
 
 
 # Select control spectrum to use for blank removal for LC-MS data based on MS mode, retention time, and precursor m/z.

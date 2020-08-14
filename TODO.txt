@@ -1,0 +1,2 @@
+- update blanka3 gui with functions
+- test all functions

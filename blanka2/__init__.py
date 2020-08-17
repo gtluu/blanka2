@@ -4,13 +4,8 @@ import sys
 import logging
 import platform
 import subprocess
-import glob
-import io
-import ConfigParser
 import numpy as np
 import pandas as pd
-import collections
-import urllib
 import base64
 import struct
 import re

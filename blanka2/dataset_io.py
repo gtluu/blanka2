@@ -2,9 +2,6 @@ import os
 import sys
 import platform
 import subprocess
-import glob
-import io
-import ConfigParser
 from pyteomics import mzxml
 from mzxml_io import *
 from timestamp import *

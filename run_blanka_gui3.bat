@@ -1,1 +1,0 @@
-python %~dp0blanka_gui3.py

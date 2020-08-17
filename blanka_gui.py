@@ -223,7 +223,10 @@ class Ui_MainWindow(object):
         if not self.args_check_gui():
             return None
         # runs BLANKA by generating a command line command and creating a subprocess
-        blanka_cmd = 'python ' + os.path.dirname(__file__) + '\\run_blanka.py '
+        if getattr(sys, 'frozen', False):
+            blanka_cmd = 'python ' + os.path.dirname(sys.executable) + '\\run_blanka.py '
+        elif __file__:
+            blanka_cmd = 'python ' + os.path.dirname(__file__) + '\\run_blanka.py '
         for key, value in self.arguments.iteritems():
             if key == 'noise_removal_only' or key == 'blank_removal_only' or key == 'verbose':
                 if value:

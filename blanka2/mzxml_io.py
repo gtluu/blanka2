@@ -34,7 +34,7 @@ def read_mzxml(sample_file):
                          'precursorMz': precursor_list,
                          'lowMz': float(scan.attrib['lowMz']),
                          'highMz': float(scan.attrib['highMz']),
-                         'peaks': decode_peaks(str(peaks_element.text), int(peaks_element.attrib['precision'])),}
+                         'peaks': decode_peaks(str(peaks_element.text), int(peaks_element.attrib['precision']))}
             list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts
 

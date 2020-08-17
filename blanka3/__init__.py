@@ -4,21 +4,16 @@ import sys
 import logging
 import platform
 import subprocess
-import glob
-import io
-import configparser
 import numpy as np
 import pandas as pd
-import collections
-import xmlschema
-import urllib.request, urllib.parse, urllib.error
 import base64
 import struct
 import re
 import hashlib
 import datetime
 import timeit
-import xml.etree.cElementTree as ET
+from lxml import etree as et
+from pyteomics import mzxml
 from multiprocessing import Pool, cpu_count
 from functools import partial
 

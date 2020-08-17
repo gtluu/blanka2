@@ -13,6 +13,7 @@ import hashlib
 import datetime
 import timeit
 from lxml import etree as et
+from pyteomics import mzxml
 from multiprocessing import Pool, cpu_count
 from functools import partial
 

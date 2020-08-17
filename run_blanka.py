@@ -16,14 +16,11 @@ def run_blanka(args):
     # Load in blank data.
     logging.info(get_timestamp() + ':' + 'Loading all blank data...')
     blank_data = filter(None, load_blank_data(args))
-    # Remove empty spectra.
-    #blank_data = [scan_dict for scan_dict in blank_data if not scan_dict['peaks'].empty]
 
     # Remove noise from blank data.
     # blank_noiseless_data == list of scans from all control datasets
     logging.info(get_timestamp() + ':' + 'Removing noise from control data...')
-    #noiseless_blank_data = filter(None, [noise_removal(args['snr'], i) for i in blank_data])
-    #blank_ms2 = [i for i in noiseless_blank_data if i['msLevel'] >= 2]
+    # APPLY A PEAK PICKING ALGORITHM HERE?
     blank_ms2 = [i for i in blank_data if i['msLevel'] >= 2]
     blank_ms2 = sorted(blank_ms2, key=lambda x: x['precursorMz'][0]['precursorMz'])
 
@@ -43,17 +40,10 @@ def run_blanka(args):
             logging.info(get_timestamp() + ':' + 'Processing ' + os.path.split(sample)[1] + '...')
             sample_data = filter(None, load_sample_data(sample))
 
-            # Noise removal from sample only for comparison purposes.
-            #noiseless_sample_data = filter(None, [noise_removal(args['snr'], i) for i in sample_data])
-
             # Blank spectra removal.
-            #spectra_for_removal = [compare_sample_blank(args, blank_ms2, i)
-            #                       for i in noiseless_sample_data]
             spectra_for_removal = [compare_sample_blank(args, blank_ms2, i)
                                    for i in sample_data]
-            #spectra_for_removal = pool.map(partial(compare_sample_blank, args, blank_ms2), sample_data)
             spectra_for_removal = filter(None, spectra_for_removal)
-            #spectra_for_removal = [i for i, j, k in spectra_for_removal]
 
             # Remove selected spectra/scans from .mzXML file and modify metadata accordingly.
             logging.info(get_timestamp() + ':' + 'Writing data to ' + blanka_output + '...')

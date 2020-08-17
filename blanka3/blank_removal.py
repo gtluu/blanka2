@@ -37,7 +37,6 @@ def compare_sample_blank(args, blank_spectra, sample_spectrum):
         elif len(blank_spectra_list) == 1:
             blank_spectrum = dot_product_calculation(sample_spectrum, blank_spectra_list[0])
         if blank_spectrum['dot_product_score'] >= args['dot_product_cutoff']:
-            print(blank_spectrum['dot_product_score'])
             return sample_spectrum
 
 

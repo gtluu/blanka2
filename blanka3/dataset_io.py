@@ -2,7 +2,6 @@ import os
 import sys
 import platform
 import subprocess
-from pyteomics import mzxml
 from .mzxml_io import *
 from .timestamp import *
 from .generate_consensus_spectrum import *
@@ -12,16 +11,6 @@ from .generate_consensus_spectrum import *
 def mzxml_data_detection(directory):
     return [os.path.join(dirpath, filename) for dirpath, dirnames, filenames in os.walk(directory)
             for filename in filenames if os.path.splitext(filename)[1].lower() == '.mzxml']
-
-
-# Convert m/z and intensity numpy arrays to a pandas dataframe.
-def spectrum_to_dataframe(scan_dict):
-    mz_array = scan_dict['m/z array'].byteswap().newbyteorder()
-    intensity_array = scan_dict['intensity array'].byteswap().newbyteorder()
-    if mz_array.size == 0 or intensity_array.size == 0:
-        return None
-    scan_dict['peaks'] = pd.DataFrame({'mz': mz_array, 'intensity': intensity_array})
-    return scan_dict
 
 
 # Get list of sample filepaths from input arguments.
@@ -68,7 +57,6 @@ def load_sample_data(sample_file):
     tmp_list = []
     for scan_dict in sample_data:
         scan_dict['file'] = sample_file
-        #scan_dict = spectrum_to_dataframe(scan_dict)
         tmp_list.append(scan_dict)
     sample_data = tmp_list
     return sample_data
@@ -83,7 +71,6 @@ def load_blank_data(args):
         list_of_scan_dicts = read_mzxml(args['blank'])
         for scan_dict in list_of_scan_dicts:
             scan_dict['file'] = args['blank']
-            #scan_dict = spectrum_to_dataframe(scan_dict)
             blank_data.append(scan_dict)
         return blank_data
     elif os.path.splitext(args['blank'])[1].lower() == '':
@@ -99,7 +86,6 @@ def load_blank_data(args):
                 list_of_scan_dicts = read_mzxml(blank)
                 for scan_dict in list_of_scan_dicts:
                     scan_dict['file'] = blank
-                    #scan_dict = spectrum_to_dataframe(scan_dict)
                     blank_data.append(scan_dict)
             grouped_blank_data = group_replicate_spectra(args, blank_data)
             consensus_blank_data = [generate_consensus_spectrum(args, i) for i in grouped_blank_data]

@@ -1,5 +1,4 @@
 from lxml import etree as et
-from pyteomics import mzxml
 import re
 import hashlib
 import base64
@@ -76,7 +75,7 @@ def modify_mzxml(blanka_output, list_of_scan_dicts, sample_file):
 
     # Update index elements.
     scan_offsets = [i.start() for i in re.finditer('<scan', mzxml_tree)]
-    scan_nums = [i['num'] for i in list(mzxml.read(blanka_output))]
+    scan_nums = [i['num'] for i in read_mzxml(blanka_output)]
     index_element = et.SubElement(mzxml_data, ns + 'index', attrib={'name': 'scan'})
     for offset, scan_num in zip(scan_offsets, scan_nums):
         offset_element = et.SubElement(index_element, ns + 'offset', attrib={'id': scan_num})

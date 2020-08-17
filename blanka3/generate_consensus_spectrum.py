@@ -157,8 +157,6 @@ def generate_consensus_spectrum(args, list_of_scan_dicts):
 
     ranked_scan_dicts = sorted([calculate_quality_score(scan_dict) for scan_dict in list_of_scan_dicts],
                                key=lambda x: x['quality_score'], reverse=True)
-    #binned_scan_dicts = get_binned_peaks(ranked_scan_dicts)
-    #largest_cluster = cluster_replicates(args, binned_scan_dicts)
     largest_cluster = cluster_replicates(args, ranked_scan_dicts)
     aligned_cluster = align_replicates(args, largest_cluster)
     preprocessed_cluster = [preprocess_consensus_spectrum(i) for i in aligned_cluster]

@@ -228,7 +228,7 @@ class Ui_MainWindow(object):
         elif __file__:
             blanka_cmd = 'python ' + os.path.dirname(__file__) + '\\run_blanka.py '
         for key, value in self.arguments.iteritems():
-            if key == 'noise_removal_only' or key == 'blank_removal_only' or key == 'verbose':
+            if key == 'verbose':
                 if value:
                     blanka_cmd += '--' + str(key) + ' ' + str(value) + ' '
             elif value != '':

@@ -126,7 +126,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
 
-        MainWindow.setWindowIcon(QtGui.QIcon('media/blanka.png'))
+        MainWindow.setWindowIcon(QtGui.QIcon(os.path.normpath('media/blanka.png')))
 
         self.arguments = {}
         self.set_default_args()
@@ -142,26 +142,26 @@ class Ui_MainWindow(object):
     def get_sample_path(self):
         if self.num_samples.isChecked():
             sample_directory = QtGui.QFileDialog.getExistingDirectory(None, 'Select Directory', 'C:\\')
-            sample_directory = str(sample_directory).replace('/', '\\')
+            sample_directory = os.path.normpath(str(sample_directory))
             self.sample_text.setText(sample_directory)
         else:
             sample_filepath = QtGui.QFileDialog.getOpenFileName(None, 'Open File', 'C:\\')
-            sample_filepath = str(sample_filepath).replace('/', '\\')
+            sample_filepath = os.path.normpath(str(sample_filepath))
             self.sample_text.setText(sample_filepath)
 
     def get_blank_path(self):
         if self.num_blanks.isChecked():
             blank_directory = QtGui.QFileDialog.getExistingDirectory(None, 'Select Directory', 'C:\\')
-            blank_directory = str(blank_directory).replace('/', '\\')
+            blank_directory = os.path.normpath(str(blank_directory))
             self.blank_text.setText(blank_directory)
         else:
             blank_filepath = QtGui.QFileDialog.getOpenFileName(None, 'Open File', 'C:\\')
-            blank_filepath = str(blank_filepath).replace('/', '\\')
+            blank_filepath = os.path.normpath(str(blank_filepath))
             self.blank_text.setText(blank_filepath)
 
     def get_output_path(self):
         output_directory = QtGui.QFileDialog.getExistingDirectory(None, 'Select Directory', 'C:\\')
-        output_directory = str(output_directory).replace('/', '\\')
+        output_directory = os.path.normpath(str(output_directory))
         self.output_text.setText(output_directory)
 
     def set_default_args(self):
@@ -205,7 +205,7 @@ class Ui_MainWindow(object):
             error_box = QtGui.QMessageBox()
             error_box.setText(error_text)
             error_box.setWindowTitle('Error')
-            error_box.setWindowIcon(QtGui.QIcon('media/blanka.png'))
+            error_box.setWindowIcon(QtGui.QIcon(os.path.normpath('media/blanka.png')))
             error_box.exec_()
             return False
         return True
@@ -215,7 +215,7 @@ class Ui_MainWindow(object):
         finish_box = QtGui.QMessageBox()
         finish_box.setText('BLANKA successfully finished!')
         finish_box.setWindowTitle('BLANKA GUI')
-        finish_box.setWindowIcon(QtGui.QIcon('media/blanka.png'))
+        finish_box.setWindowIcon(QtGui.QIcon(os.path.normpath('media/blanka.png')))
         finish_box.exec_()
 
     def run_blanka_gui(self):

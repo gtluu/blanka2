@@ -1,4 +1,5 @@
-from lxml import etree as et
+#from lxml import etree as et
+import lxml.etree as et
 import re
 import hashlib
 import base64
@@ -78,7 +79,7 @@ def modify_mzxml(blanka_output, list_of_scan_dicts, sample_file):
     scan_nums = [i['num'] for i in read_mzxml(blanka_output)]
     index_element = et.SubElement(mzxml_data, ns + 'index', attrib={'name': 'scan'})
     for offset, scan_num in zip(scan_offsets, scan_nums):
-        offset_element = et.SubElement(index_element, ns + 'offset', attrib={'id': scan_num})
+        offset_element = et.SubElement(index_element, ns + 'offset', attrib={'id': str(scan_num)})
         offset_element.text = str(offset)
 
     # Rewrite temporary mzxml_tree.

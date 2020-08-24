@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import logging
 from multiprocessing import Pool
-from functools import partial
+#from functools import partial
 from dataset_io import *
 
 
@@ -19,26 +19,29 @@ def calculate_quality_score(scan_dict):
 
 
 # Calculate dot product for each scan.
-def dot_product_calculation(ref_scan_dict, scan_dict):
+def dot_product_calculation(args, ref_scan_dict, scan_dict):
     # Create bins for dot product calculation.
     def get_binned_peaks(ref_scan_dict, scan_dict):
         # Concatenate all scans to a single dataframe.
         concat_df = pd.concat([ref_scan_dict['peaks'], scan_dict['peaks']])
         # Use dataframe to figure out low and high m/z ranges to create bins.
-        low_mz = int(round(min(concat_df['mz'].values.tolist()), -1)) - 2
-        high_mz = int(round(max(concat_df['mz'].values.tolist()), -1)) - 2
-        stepsize = (float(high_mz) - float(low_mz)) / 10000.0
+        low_mz = int(round(min(concat_df['mz'].values.tolist()), 0)) - 2
+        high_mz = int(round(max(concat_df['mz'].values.tolist()), 0)) + 2
+        #stepsize = (float(high_mz) - float(low_mz)) / 10000.0
         # NOTE: change step to precursor or fragment m/z tolerance?
-        bins = np.arange(low_mz, high_mz, step=stepsize)
+        bins = np.arange(low_mz, high_mz, step=args['precursor_mz_tol'])
 
         # Bin peaks for each scan.
-        scan_dict['binned_peaks'] = pd.cut(scan_dict['peaks']['mz'], bins=bins)
-        scan_dict['binned_peaks'] = scan_dict['peaks'].groupby(scan_dict['binned_peaks']).aggregate(sum)
-        ref_scan_dict['binned_peaks'] = pd.cut(ref_scan_dict['peaks']['mz'], bins=bins)
-        ref_scan_dict['binned_peaks'] = ref_scan_dict['peaks'].groupby(ref_scan_dict['binned_peaks']).aggregate(sum)
-        return (ref_scan_dict, scan_dict)
+        scn_binned_peaks = pd.cut(scan_dict['peaks']['mz'], bins=bins)
+        scn_binned_peaks = scan_dict['peaks'].groupby(scn_binned_peaks).aggregate(sum)
+        ref_binned_peaks = pd.cut(ref_scan_dict['peaks']['mz'], bins=bins)
+        ref_binned_peaks = ref_scan_dict['peaks'].groupby(ref_binned_peaks).aggregate(sum)
+        return (ref_binned_peaks, scn_binned_peaks)
 
-    # See if binned peaks exists.
+    # Get binned peaks for each scan_dict.
+    reference_binned_peaks, scan_binned_peaks = get_binned_peaks(ref_scan_dict, scan_dict)
+
+    '''# See if binned peaks exists.
     try:
         reference_binned_peaks = ref_scan_dict['binned_peaks']
         scan_binned_peaks = scan_dict['binned_peaks']
@@ -46,8 +49,10 @@ def dot_product_calculation(ref_scan_dict, scan_dict):
     except KeyError:
         ref_scan_dict, scan_dict = get_binned_peaks(ref_scan_dict, scan_dict)
         reference_binned_peaks = ref_scan_dict['binned_peaks']
-        scan_binned_peaks = scan_dict['binned_peaks']
+        scan_binned_peaks = scan_dict['binned_peaks']'''
 
+    #print reference_binned_peaks
+    #print scan_binned_peaks
     reference_intensities = reference_binned_peaks['intensity'].values.tolist()
     scan_intensities = scan_binned_peaks['intensity'].values.tolist()
 
@@ -60,6 +65,11 @@ def dot_product_calculation(ref_scan_dict, scan_dict):
     denominator = denominator1 * denominator2
     denominator = denominator ** 0.5
     dot_product_score = numerator / denominator
+    print dot_product_score
+    '''try:
+        dot_product_score = numerator / denominator
+    except ZeroDivisionError:
+        dot_product_score = 0'''
     scan_dict['dot_product_score'] = dot_product_score
     return scan_dict
 
@@ -76,7 +86,7 @@ def cluster_replicates(args, ranked_scan_dicts):
         top_ranked_scan_dict['dot_product_score'] = 1
 
         # Calculate dot product scores for each scan.
-        dot_product_results = [dot_product_calculation(top_ranked_scan_dict, i) for i in ranked_scan_dicts[1:]]
+        dot_product_results = [dot_product_calculation(args, top_ranked_scan_dict, i) for i in ranked_scan_dicts[1:]]
 
         scans_over_threshold = [scan_dict for scan_dict in dot_product_results
                                 if scan_dict['dot_product_score'] >= args['dot_product_cutoff']]
@@ -94,7 +104,10 @@ def cluster_replicates(args, ranked_scan_dicts):
                                 if len(cluster) == num_scans_largest_cluster]
 
     # Return largest cluster of scans.
-    return sorted(list_of_largest_clusters, key=lambda x: x[1])[0][0]
+    #print list_of_largest_clusters
+    #return sorted(list_of_largest_clusters, key=lambda x: x[1])[0][0]
+    if len(list_of_largest_clusters) == 1:
+        return list_of_largest_clusters[0]
 
 
 # Align spectra to generate a consensus spectrum downstream.
@@ -104,14 +117,16 @@ def align_replicates(args, cluster):
         return (intensity / max_intensity) * 100
 
     for scan_dict in cluster:
+        #print cluster
+        #print scan_dict
         scan_dict['peaks']['ion'] = scan_dict['peaks']['mz'].values.tolist()
         intensities = scan_dict['peaks']['intensity'].values.tolist()
         relative_intensities = [calculate_relative_intensity(max(intensities), i) for i in intensities]
         scan_dict['peaks']['rel_inten'] = relative_intensities
 
     # Each scan placed first to account for differences in peaks due to merge_asof using left outer join.
-    list_of_cluster_combos = [[cluster[i]] + [j for j in cluster if not j == cluster[i]]
-                              for i in range(0, len(cluster))]
+    list_of_cluster_combos = [[cluster[i]] + [cluster[j] for j in range(0, len(cluster))
+                                              if not j == i] for i in range(0, len(cluster))]
 
     def multi_merge_asof(fragment_mz_tol, list_of_scan_dicts):
         for count, scan_dict in enumerate(list_of_scan_dicts):
@@ -148,7 +163,8 @@ def preprocess_consensus_spectrum(scan_dict):
 
 
 # Generate consensus spectra based on workflow by Lam et al. (doi:10.1038/nmeth.1254).
-def generate_consensus_spectrum(args, list_of_scan_dicts):
+def get_consensus_spectrum(args, list_of_scan_dicts):
+    print 'getting consensus'
     def get_median_precursor(list_of_scan_dicts):
         return np.median([scan_dict['precursorMz'][0]['precursorMz'] for scan_dict in list_of_scan_dicts])
 
@@ -177,6 +193,11 @@ def generate_consensus_spectrum(args, list_of_scan_dicts):
         return consensus_df
 
     ms_level = set([i['msLevel'] for i in list_of_scan_dicts])
+    if len(ms_level) == 1:
+        ms_level = list(ms_level)[0]
+    else:
+        # Add error message.
+        return None
     return {'peaks': multi_merge(preprocessed_cluster),
             'precursorMz': [{'precursorMz': get_median_precursor(list_of_scan_dicts)}],
             'retentionTime': get_median_rt(list_of_scan_dicts),

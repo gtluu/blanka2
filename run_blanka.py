@@ -19,7 +19,7 @@ def run_blanka(args):
 
     # Remove noise from blank data.
     # blank_noiseless_data == list of scans from all control datasets
-    logging.info(get_timestamp() + ':' + 'Removing noise from control data...')
+    #logging.info(get_timestamp() + ':' + 'Removing noise from control data...')
     # APPLY A PEAK PICKING ALGORITHM HERE?
     blank_ms2 = [i for i in blank_data if i['msLevel'] >= 2]
     blank_ms2 = sorted(blank_ms2, key=lambda x: x['precursorMz'][0]['precursorMz'])

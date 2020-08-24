@@ -31,11 +31,11 @@ def compare_sample_blank(args, blank_spectra, sample_spectrum):
         # Return best match if more than one spectra found meeting criteria.
         # Return spectrum most similar to sample based on dot product score.
         if len(blank_spectra_list) > 1:
-            blank_spectrum = sorted([dot_product_calculation(sample_spectrum, i) for i in blank_spectra_list],
+            blank_spectrum = sorted([dot_product_calculation(args, sample_spectrum, i) for i in blank_spectra_list],
                                     key=lambda x: x['dot_product_score'], reverse=True)[0]
         # Return blank spectrum if only one found.
         elif len(blank_spectra_list) == 1:
-            blank_spectrum = dot_product_calculation(sample_spectrum, blank_spectra_list[0])
+            blank_spectrum = dot_product_calculation(args, sample_spectrum, blank_spectra_list[0])
         if blank_spectrum['dot_product_score'] >= args['dot_product_cutoff']:
             return sample_spectrum
 

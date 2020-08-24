@@ -12,9 +12,10 @@ import re
 import hashlib
 import datetime
 import timeit
-from lxml import etree as et
+#from lxml import etree as et
+import lxml.etree as et
 from multiprocessing import Pool, cpu_count
-from functools import partial
+#from functools import partial
 
 from arguments import *
 from blank_removal import *

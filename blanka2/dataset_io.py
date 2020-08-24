@@ -109,7 +109,7 @@ def load_blank_data(args):
 
 # Load in spectra from SQLite3 database file (.db).
 def load_database_data():
-    con = sqlite3.connect('db/metabolites.db')
+    con = sqlite3.connect(os.path.join(os.path.split(os.path.dirname(__file__))[0], 'db/metabolites.db'))
     cur = con.cursor()
     db_data = cur.execute('SELECT * FROM metabolites').fetchall()
     db_data = [{'id': int(i[0]),

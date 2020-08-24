@@ -16,6 +16,8 @@ import timeit
 import lxml.etree as et
 from multiprocessing import Pool, cpu_count
 #from functools import partial
+import sqlite3
+#from PyQt4 import QtCore, QtGui
 
 from arguments import *
 from blank_removal import *

@@ -2,6 +2,7 @@ import os
 import sys
 import platform
 import subprocess
+import sqlite3
 from mzxml_io import *
 from timestamp import *
 import generate_consensus_spectrum
@@ -104,6 +105,23 @@ def load_blank_data(args):
                     consensus_blank_data.append(tmp)
             return consensus_blank_data'''
             return blank_data
+
+
+# Load in spectra from SQLite3 database file (.db).
+def load_database_data():
+    con = sqlite3.connect('db/metabolites.db')
+    cur = con.cursor()
+    db_data = cur.execute('SELECT * FROM metabolites').fetchall()
+    db_data = [{'id': int(i[0]),
+                'precursorMz': [{'precursorMz': float(i[1])}],
+                'retentionTime': float(i[2]),
+                'msLevel': int(i[3]),
+                'highMz': float(i[4]),
+                'lowMz': float(i[5]),
+                'precision': int(i[6]),
+                'peaks': decode_peaks(str(i[7]), int(i[6]))}
+               for i in db_data]
+    return db_data
 
 
 if __name__ == '__main__':

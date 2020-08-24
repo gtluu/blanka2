@@ -16,6 +16,7 @@ def run_blanka(args):
     # Load in blank data.
     logging.info(get_timestamp() + ':' + 'Loading all blank data...')
     blank_data = filter(None, load_blank_data(args))
+    blank_data = blank_data + load_database_data()
 
     # Remove noise from blank data.
     # blank_noiseless_data == list of scans from all control datasets

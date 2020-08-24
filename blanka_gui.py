@@ -74,17 +74,17 @@ class Ui_MainWindow(object):
         self.experiment_choice.setGeometry(QtCore.QRect(90, 190, 161, 22))
         self.experiment_choice.setObjectName(_fromUtf8("instrument_choice"))
         self.experiment_choice.addItem(_fromUtf8(""))
-        self.experiment_choice.addItem(_fromUtf8(""))
-        self.snr_label = QtGui.QLabel(self.centralwidget)
-        self.snr_label.setGeometry(QtCore.QRect(10, 230, 111, 21))
-        self.snr_label.setObjectName(_fromUtf8("snr_label"))
-        self.snr_text = QtGui.QLineEdit(self.centralwidget)
-        self.snr_text.setGeometry(QtCore.QRect(120, 230, 51, 20))
-        self.snr_text.setText(_fromUtf8(""))
-        self.snr_text.setObjectName(_fromUtf8("snr_text"))
-        self.snr_unit = QtGui.QLabel(self.centralwidget)
-        self.snr_unit.setGeometry(QtCore.QRect(180, 230, 21, 21))
-        self.snr_unit.setObjectName(_fromUtf8("snr_unit"))
+        #self.experiment_choice.addItem(_fromUtf8(""))
+        #self.snr_label = QtGui.QLabel(self.centralwidget)
+        #self.snr_label.setGeometry(QtCore.QRect(10, 230, 111, 21))
+        #self.snr_label.setObjectName(_fromUtf8("snr_label"))
+        #self.snr_text = QtGui.QLineEdit(self.centralwidget)
+        #self.snr_text.setGeometry(QtCore.QRect(120, 230, 51, 20))
+        #self.snr_text.setText(_fromUtf8(""))
+        #self.snr_text.setObjectName(_fromUtf8("snr_text"))
+        #self.snr_unit = QtGui.QLabel(self.centralwidget)
+        #self.snr_unit.setGeometry(QtCore.QRect(180, 230, 21, 21))
+        #self.snr_unit.setObjectName(_fromUtf8("snr_unit"))
         self.rt_label = QtGui.QLabel(self.centralwidget)
         self.rt_label.setGeometry(QtCore.QRect(10, 270, 151, 21))
         self.rt_label.setObjectName(_fromUtf8("rt_label"))
@@ -166,7 +166,7 @@ class Ui_MainWindow(object):
 
     def set_default_args(self):
         self.arguments['output'] = ''
-        self.arguments['snr'] = 4
+        #self.arguments['snr'] = 4
         self.arguments['rt_tol'] = 6
         self.arguments['precursor_mz_tol'] = 0.02
         self.arguments['cpu'] = cpu_count() - 1
@@ -178,9 +178,9 @@ class Ui_MainWindow(object):
         self.arguments['output'] = str(self.output_text.text())
         if self.experiment_choice.currentText() == 'LC-MS/MS':
             self.arguments['experiment'] = 'lcms'
-        elif self.experiment_choice.currentText() == 'MALDI Dried Droplet':
-            self.arguments['experiment'] = 'dd'
-        self.arguments['snr'] = int(self.snr_text.text())
+        #elif self.experiment_choice.currentText() == 'MALDI Dried Droplet':
+        #    self.arguments['experiment'] = 'dd'
+        #self.arguments['snr'] = int(self.snr_text.text())
         self.arguments['rt_tol'] = float(self.rt_text.text())
         self.arguments['precursor_mz_tol'] = float(self.mz_text.text())
         self.arguments['fragment_mz_tol'] = float(self.mz_text.text())
@@ -260,8 +260,8 @@ class Ui_MainWindow(object):
         self.experiment_label.setText(_translate("MainWindow", "Experiment", None))
         self.experiment_choice.setItemText(0, _translate("MainWindow", "LC-MS/MS", None))
         self.experiment_choice.setItemText(1, _translate("MainWindow", "MALDI Dried Droplet", None))
-        self.snr_label.setText(_translate("MainWindow", "Signal to Noise Ratio:", None))
-        self.snr_unit.setText(_translate("MainWindow", ": 1", None))
+        #self.snr_label.setText(_translate("MainWindow", "Signal to Noise Ratio:", None))
+        #self.snr_unit.setText(_translate("MainWindow", ": 1", None))
         self.rt_label.setText(_translate("MainWindow", "Retention Time Tolerance: +/-", None))
         self.rt_unit.setText(_translate("MainWindow", "sec", None))
         self.mz_label.setText(_translate("MainWindow", "m/z Tolerance: +/-", None))

@@ -9,7 +9,7 @@ import pandas as pd
 def read_mzxml(sample_file):
     def decode_peaks(peaks, precision):
         peak_list = base64.b64decode(peaks)
-        peak_list = struct.unpack('>' + str(len(peak_list) / 4) + 'L', peak_list)
+        peak_list = struct.unpack('>' + str(len(peak_list) // 4) + 'L', peak_list)
         mz_list = [struct.unpack('f', struct.pack('I', i))[0] for i in peak_list[::2]]
         int_list = [struct.unpack('f', struct.pack('I', i))[0] for i in peak_list[1::2]]
         return pd.DataFrame(list(zip(mz_list, int_list)), columns=['mz', 'intensity'])

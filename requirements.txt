@@ -1,0 +1,4 @@
+falcon-ms
+spectrum_utils==0.3.5
+pandas
+psims

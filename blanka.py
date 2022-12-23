@@ -53,10 +53,17 @@ def run_blanka(args, falcon_keys):
     # Run falcon cluster.
     logging.info(get_timestamp() + ':' + 'Running falcon cluster...')
     falcon_cmd = ['falcon'] + sample_files + blank_files
-    # TODO: add code here to add params for falcon cluster to falcon_cmd
     falcon_results_filename = 'falcon_' + get_timestamp()
     falcon_results_filename = os.path.join(args['outdir'], falcon_results_filename)
     falcon_cmd.append(falcon_results_filename)
+    for key in falcon_keys:
+        if args[key] == True:
+            falcon_cmd.append('--' + key)
+        else:
+            if args[key] != False:
+                if args[key] != '':
+                    falcon_cmd.append('--' + key)
+                    falcon_cmd.append(args[key])
     subprocess.run(falcon_cmd, shell=True, capture_output=True)
 
     # Read in and parse falcon cluster results to figure which scans to exclude from each sample based on clustering

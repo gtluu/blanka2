@@ -67,19 +67,16 @@ def run_blanka(args, falcon_keys):
                     falcon_cmd.append(str(args[key][0]))
                     falcon_cmd.append(str(args[key][1]))
                 else:
-                    print('--' + key)
                     falcon_cmd.append('--' + key)
-                    print(str(args[key]))
                     falcon_cmd.append(str(args[key]))
     falcon_cmd = ' '.join(falcon_cmd)
     falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True)
-    print(falcon_run)
 
     # Read in and parse falcon cluster results to figure which scans to exclude from each sample based on clustering
     # with blanks.
     # Get initial dataframe with falcon results and reformat with new columns from "identifier".
     logging.info(get_timestamp() + ':' + 'Parsing scans to be removed from sample .mzML files...')
-    falcon_results = pd.read_csv(falcon_results_filename, comment='#')
+    falcon_results = pd.read_csv(falcon_results_filename + '.csv', comment='#')
     falcon_results[['mzspec_const',
                     'usi',
                     'sample',

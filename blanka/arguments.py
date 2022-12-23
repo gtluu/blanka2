@@ -4,30 +4,36 @@ import sys
 from blanka.timestamp import *
 
 
+# TODO: add descriptions for falcon cluster params
+def arg_descriptions():
+    descriptions = {'sample_input': 'Filepath for sample .mzML file or directory containing multiple .mzML files.',
+                    'blank_input': 'Filepath for blank/control .mzML file or directory containing multiple .mzML files.'
+                                   ' MS/MS spectra from samples will be removed if clustered to spectra in blank '
+                                   'file(s).',
+                    'outdir': 'Path to folder in which to write output file(s). Default = none',
+                    'outfile': 'User defined filename for output if converting a single file, otherwise files will '
+                               'have same filename and overwrite each other. Default = none.',
+                    'verbose': 'Boolean flag to determine whether to print logging output.'}
+    return descriptions
+
+
 # Parse arguments to run BLANKA.
 def get_args():
+    desc = arg_descriptions()
+
     # Initialize parser
     parser = argparse.ArgumentParser()
 
     # Required Arguments
-    parser.add_argument('--sample', help='sample input directory/file path', required=True, type=str)
-    parser.add_argument('--blank', help='blank/control input directory/file path', required=True, type=str)
-    parser.add_argument('--experiment', help='type of experiment (lcms or dd)', required=True, type=str)
+    required = parser.add_argument_group('Required Parameters')
+    required.add_argument('--sample_input', help=desc['sample_input'], required=True, type=str)
+    required.add_argument('--blank_input', help=desc['blank_input'], required=True, type=str)
+
     # Optional Arguments
-    parser.add_argument('--output', help='output directory for all files generated (default=sample folder)',
-                        default='', type=str)
-    parser.add_argument('--blank_spot', help='name of blank condition for MALDI DD experiments', type=str)
-    parser.add_argument('--snr', help='integer signal to noise ratio(default=4)', default=4, type=int)
-    parser.add_argument('--rt_tol', help='retention time tolerance in seconds (default=1)', default=6.0, type=float)
-    parser.add_argument('--precursor_mz_tol', help='precursor ion m/z tolerance (default=0.5)', default=0.5, type=float)
-    parser.add_argument('--precursor_ppm_tol', help='precursor ion ppm tolerance (default=50)', default=50, type=float)
-    parser.add_argument('--fragment_mz_tol', help='fragment ion m/z tolerance (default=0.5)', default=0.5, type=float)
-    parser.add_argument('--fragment_ppm_tol', help='fragment ion ppm tolerance (default=50)', default=50, type=float)
-    parser.add_argument('--dot_product_cutoff', help='dot product score cutoff for blank removal (default=0.6)',
-                        default=0.6, type=float)
-    # Advanced Arguments
-    parser.add_argument('--cpu', help='number of threads used (default=max-1)', default=cpu_count()-1, type=int)
-    parser.add_argument('--verbose', help='display progress information', default=False, type=bool)
+    optional = parser.add_argument_group('Optional Parameters')
+    optional.add_argument('--outdir', help=desc['outdir'], default='', type=str)
+    optional.add_argument('--outfile', help=desc['outfile'], default='', type=str)
+    optional.add_argument('--verbose', help=desc['verbose'], action='store_true')
 
     # Return parser
     arguments = parser.parse_args()
@@ -36,33 +42,21 @@ def get_args():
 
 # Checks to ensure arguments are valid.
 def args_check(args):
-    # Check if sample and blank paths exist.
-    if not os.path.exists(args['sample']):
-        logging.error(get_timestamp() + ':' + 'Sample path does not exist...')
-        logging.error(get_timestamp() + ':' + 'Exiting...')
+    # Check if input file/directory exists.
+    if not os.path.exists(args['sample_input']):
+        logging.info(get_timestamp() + ':' + 'Sample input path does not exist...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
-    if not os.path.exists(args['blank']):
-        logging.error(get_timestamp() + ':' + 'Blank path does not exist...')
-        logging.error(get_timestamp() + ':' + 'Exiting...')
+    if not os.path.exists(args['blank_input']):
+        logging.info(get_timestamp() + ':' + 'Blank input path does not exist...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
-    # Check cpu setting.
-    if args['cpu'] >= cpu_count():
-        logging.error(get_timestamp() + ':' + 'Number of threads specified exceeds number of available threads...')
-        logging.error(get_timestamp() + ':' + 'Your computer has ' + str(cpu_count()-1) + ' usable threads...')
-        logging.error(get_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
-    # Check experiment.
-    if not args['experiment'] == 'lcms' and not args['experiment'] == 'maldi':
-        logging.error(get_timestamp() + ':' + 'Invalid experiment...')
-        logging.error(get_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
-
-
-# Write parameters used to run BLANKA to text file.
-def write_params(args, logfile):
-    with open(os.path.join(os.path.split(logfile)[0], 'parameters_' + get_timestamp() + '.txt'), 'a') as params:
-        for key, value in args.iteritems():
-            params.write('[' + str(key) + ']' + '\n' + str(value) + '\n')
+    # Check if output directory exists and create it if it does not.
+    if not os.path.isdir(args['outdir']) and args['outdir'] != '':
+        os.makedirs(args['outdir'])
+    # Check to make sure output filename ends in .mzML extension.
+    if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
+        args['outfile'] = args['outfile'] + '.mzML'
 
 
 if __name__ == '__main__':

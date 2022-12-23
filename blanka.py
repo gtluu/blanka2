@@ -62,10 +62,15 @@ def run_blanka(args, falcon_keys):
                 falcon_cmd.append('--' + key)
         else:
             if args[key] != '' and args[key] is not None:
-                print('--' + key)
-                falcon_cmd.append('--' + key)
-                print(str(args[key]))
-                falcon_cmd.append(str(args[key]))
+                if key == 'precursor_tol':
+                    falcon_cmd.append('--' + key)
+                    falcon_cmd.append(str(args[key][0]))
+                    falcon_cmd.append(str(args[key][1]))
+                else:
+                    print('--' + key)
+                    falcon_cmd.append('--' + key)
+                    print(str(args[key]))
+                    falcon_cmd.append(str(args[key]))
     falcon_cmd = ' '.join(falcon_cmd)
     falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True)
     print(falcon_run)

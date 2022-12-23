@@ -57,15 +57,15 @@ def run_blanka(args, falcon_keys):
     falcon_results_filename = os.path.join(args['outdir'], falcon_results_filename)
     falcon_cmd.append(falcon_results_filename)
     for key in falcon_keys:
-        if args[key] == True:
-            falcon_cmd.append('--' + key)
+        if isinstance(args[key], bool):
+            if args[key]:
+                falcon_cmd.append('--' + key)
         else:
-            if args[key] != False:
-                if args[key] != '' and args[key] is not None:
-                    print('--' + key)
-                    falcon_cmd.append('--' + key)
-                    print(str(args[key]))
-                    falcon_cmd.append(str(args[key]))
+            if args[key] != '' and args[key] is not None:
+                print('--' + key)
+                falcon_cmd.append('--' + key)
+                print(str(args[key]))
+                falcon_cmd.append(str(args[key]))
     falcon_cmd = ' '.join(falcon_cmd)
     falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True)
     print(falcon_run)

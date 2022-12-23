@@ -116,13 +116,13 @@ def run_blanka(args, falcon_keys):
         # TODO: psims transformer does not transcribe ion mobility arrays; will need to fork it for that functionality
         logging.info(get_timestamp() + ':' + 'Removing scans from ' + os.path.split(infile)[1] + ' found in blanks...')
         if args['outfile'] == '':
-            args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '_blanka.mzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '_blanka.mzML'
 
         infile_id = os.path.splitext(os.path.split(infile)[-1])[0]
         transform_partial = partial(transform_drop_scans, scans_to_remove=sample_scan_removal_lists[infile_id])
-        with open(infile, 'rb') as instream, open(os.path.join(args['outdir'], args['outfile']), 'wb') as outstream:
+        with open(infile, 'rb') as instream, open(os.path.join(args['outdir'], outfile), 'wb') as outstream:
             MzMLTransformer(instream, outstream, transform_partial).write()
-        logging.info(get_timestamp() + ':' + 'Finished writing to ' + args['outfile'])
+        logging.info(get_timestamp() + ':' + 'Finished writing to ' + outfile)
 
     # Shut down logger.
     for hand in logging.getLogger().handlers:

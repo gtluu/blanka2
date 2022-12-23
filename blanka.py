@@ -41,13 +41,13 @@ def run_blanka(args, falcon_keys):
         logging.info(get_timestamp() + ':' + str(key) + ':' + str(value))
 
     # Get filenames for input data.
-    if not args['sample_input'].tolower().endswith('.mzml'):
+    if not args['sample_input'].lower().endswith('.mzml'):
         sample_files = mzml_data_detection(args['sample_input'])
-    elif args['sample_input'].tolower().endswith('.mzml'):
+    elif args['sample_input'].lower().endswith('.mzml'):
         sample_files = [args['sample_input']]
-    if not args['blank_input'].tolower().endswith('.mzml'):
+    if not args['blank_input'].lower().endswith('.mzml'):
         blank_files = mzml_data_detection(args['blank_input'])
-    elif args['blank_input'].tolower().endswith('.mzml'):
+    elif args['blank_input'].lower().endswith('.mzml'):
         blank_files = [args['blank_input']]
 
     # Run falcon cluster.

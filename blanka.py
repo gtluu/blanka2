@@ -5,7 +5,7 @@ from psims.transform import MzMLTransformer
 from blanka import *
 
 
-def run_blanka(args):
+def run_blanka(args, falcon_keys):
     # Args check.
     args_check(args)
     args['version'] = '2.0.0'
@@ -119,7 +119,7 @@ def run_blanka(args):
 
 if __name__ == '__main__':
     # parse arguments
-    args = get_args()
+    args, falcon_keys = get_args()
 
     # Run
-    run_blanka(args)
+    run_blanka(args, falcon_keys)

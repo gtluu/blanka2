@@ -62,7 +62,9 @@ def run_blanka(args, falcon_keys):
         else:
             if args[key] != False:
                 if args[key] != '' and args[key] is not None:
+                    print('--' + key)
                     falcon_cmd.append('--' + key)
+                    print(str(args[key]))
                     falcon_cmd.append(str(args[key]))
     falcon_cmd = ' '.join(falcon_cmd)
     falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True)

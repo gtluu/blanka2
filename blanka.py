@@ -64,7 +64,8 @@ def run_blanka(args, falcon_keys):
                 if args[key] != '':
                     falcon_cmd.append('--' + key)
                     falcon_cmd.append(str(args[key]))
-    subprocess.run(falcon_cmd, shell=True, capture_output=True)
+    falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True)
+    print(falcon_run)
 
     # Read in and parse falcon cluster results to figure which scans to exclude from each sample based on clustering
     # with blanks.

@@ -43,7 +43,7 @@ def arg_descriptions():
                    'min_mz_range': 'Discard spectra with a smaller mass range (default: 250.0 m/z).',
                    'min_mz': 'Minimum peak m/z value (inclusive, default: 101.0 m/z).',
                    'max_mz': 'Maximum peak m/z value (inclusive, default: 1500.0 m/z).',
-                   'remove precursor_tol': 'Window around the precursor mass to remove peaks (default: 1.5 m/z).',
+                   'remove_precursor_tol': 'Window around the precursor mass to remove peaks (default: 1.5 m/z).',
                    'min_intensity': 'Remove pekas with a lower intensity relative to the base intensity (default: '
                                     '0.01).',
                    'max_peaks_used': 'Only use the specified most intense peaks in the spectra (default: 50).',

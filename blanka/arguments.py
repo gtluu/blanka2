@@ -1,8 +1,7 @@
 import argparse
 import os
 import sys
-from .timestamp import *
-from multiprocessing import cpu_count
+from blanka.timestamp import *
 
 
 # Parse arguments to run BLANKA.

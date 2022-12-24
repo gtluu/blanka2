@@ -35,6 +35,7 @@ def run_blanka(args, falcon_keys):
     if not sys.platform == 'linux' and not sys.platform == 'darwin':
         logging.warning(get_timestamp() + 'Must be using macOS or Linux.')
         logging.warning(get_timestamp() + 'If using Windows, please use Windows Subsystem for Linux (WSL).')
+        sys.exit(1)
 
     # Log arguments.
     for key, value in args.items():
@@ -70,7 +71,12 @@ def run_blanka(args, falcon_keys):
                     falcon_cmd.append('--' + key)
                     falcon_cmd.append(str(args[key]))
     falcon_cmd = ' '.join(falcon_cmd)
-    falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True)
+    falcon_run = subprocess.run(falcon_cmd, shell=True, capture_output=True, text=True)
+    logging.info(get_timestamp() + ':' + 'falcon cluster completed with return code ' + str(falcon_run.returncode))
+    if falcon_run.returncode == 0:
+        logging.info(falcon_run.stdout)
+    else:
+        logging.info(falcon_run.stderr)
 
     # Read in and parse falcon cluster results to figure which scans to exclude from each sample based on clustering
     # with blanks.

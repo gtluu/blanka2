@@ -9,3 +9,4 @@
 .gitignore
 /depracated/
 /dist/
+/__pycache__

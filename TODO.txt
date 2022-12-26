@@ -1,3 +1,0 @@
-- update blanka3 scripts
-- optimize functions for speed
-- add MS1 processing via MZmine/XCMS output?
